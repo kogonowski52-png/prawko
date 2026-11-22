@@ -67,7 +67,7 @@ Najpierw wygeneruj raport kontrolny. Katalog wyjściowy musi być nowy lub pusty
 ```sh
 python3 tools/import_questions.py \
   --xlsx 'local-data/KATALOG_dla_kandydatów_na_kierowców_072026.xlsx' \
-  --dataset-version 2026-07-B \
+  --dataset-version DEMO-2026-07-B \
   --category B \
   --source-reference 'Ministerstwo Infrastruktury, katalog z lipca 2026' \
   --output-dir local-data/review-2026-07-B
