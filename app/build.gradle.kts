@@ -57,6 +57,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.room:room-runtime:2.8.4")
+    implementation("com.google.code.gson:gson:2.13.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     ksp("androidx.room:room-compiler:2.8.4")
 
@@ -67,4 +68,27 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.7.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+providers.gradleProperty("prawkoCatalogDir").orNull?.let { path ->
+    val catalogDir = rootProject.file(path)
+    require(catalogDir.resolve("questions.json").isFile) {
+        "prawkoCatalogDir must point to an importer output directory containing questions.json"
+    }
+
+    val catalogAssets = layout.buildDirectory.dir("generated/catalog-assets")
+    val stageCatalogAssets by tasks.registering(Sync::class) {
+        into(catalogAssets)
+        from(catalogDir) {
+            include("questions.json", "media/**")
+            into("catalog")
+        }
+        includeEmptyDirs = false
+    }
+    android.sourceSets.named("main") {
+        assets.srcDir(catalogAssets)
+    }
+    tasks.named("preBuild") {
+        dependsOn(stageCatalogAssets)
+    }
 }

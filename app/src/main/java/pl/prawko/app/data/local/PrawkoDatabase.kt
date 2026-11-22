@@ -4,8 +4,15 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [QuestionDatasetEntity::class, QuestionEntity::class],
-    version = 1,
+    entities = [
+        QuestionDatasetEntity::class,
+        ActiveQuestionDatasetEntity::class,
+        QuestionEntity::class,
+        QuestionCategoryEntity::class,
+        QuestionTranslationEntity::class,
+        QuestionMediaEntity::class,
+    ],
+    version = 2,
     exportSchema = true,
 )
 internal abstract class PrawkoDatabase : RoomDatabase() {

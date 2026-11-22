@@ -25,7 +25,7 @@ Niezależna polskojęzyczna aplikacja na Androida do nauki teorii i rozwiązywan
 
 Aplikacja uruchamia polski onboarding, pulpit kategorii B, wybór trybu i ustawienia motywu. DataStore zapamiętuje ukończenie onboardingu oraz motyw jasny, ciemny lub zgodny z systemem. Interfejs działa offline.
 
-Room przygotowuje lokalny schemat pytań i wersji bazy. Aplikacja startuje z pustą bazą. Nauka i egzamin próbny wyjaśniają, że do ich rozpoczęcia potrzebna jest zweryfikowana baza dla kategorii B. Import bazy, rozwiązywanie pytań, punktacja egzaminu, zapis postępu i odtwarzanie multimediów należą do kolejnych etapów. Format źródłowy i reguły walidacji opisuje [dokumentacja importu katalogu](docs/import-katalog-072026.md).
+Room przygotowuje lokalny schemat pytań i wersji bazy. Standardowa kompilacja startuje z pustą bazą. Opcjonalnie można dołączyć zweryfikowany katalog z importera i zasilić nim lokalną bazę Room. Rozwiązywanie pytań, punktacja egzaminu, zapis postępu i odtwarzanie multimediów należą do kolejnych etapów. Instrukcje przygotowania katalogu, sprawdzania raportu i dołączania danych opisuje [dokumentacja importu katalogu](docs/import-katalog-072026.md).
 
 ## Uruchomienie
 
@@ -48,7 +48,7 @@ Plik APK znajdziesz w `app/build/outputs/apk/debug/app-debug.apk`. Po podłącze
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-Testy jednostkowe obejmują model pytań i trwałość preferencji. Testy instrumentowane sprawdzają nawigację po onboardingu i trybach, wybór motywu oraz dostępność pytań w Room.
+Testy jednostkowe obejmują model pytań, trwałość preferencji i odczyt pakietu katalogu. Testy instrumentowane sprawdzają nawigację po onboardingu i trybach, wybór motywu oraz dostępność pytań w Room.
 
 ## Struktura
 

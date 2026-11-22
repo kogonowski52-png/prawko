@@ -8,7 +8,10 @@ enum class QuestionAvailability {
 }
 
 interface QuestionRepository {
-    /** Reports whether the local database contains verified official category B questions. */
+    /** The active verified category B version, available as the exam's dataset identifier. */
+    val activeDatasetVersion: Flow<String?>
+
+    /** Reports whether the active dataset contains verified official category B questions. */
     val availability: Flow<QuestionAvailability>
 
     fun observeQuestions(datasetVersion: String): Flow<List<Question>>

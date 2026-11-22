@@ -57,3 +57,62 @@
 ## Zakres pierwszego etapu
 
 Import `katalog` dla kategorii B i statystyki, z walidacją 10 sprzecznych rekordów. Nie podłączaj jeszcze płatności ani reklam do niedziałającego egzaminu. Najpierw zweryfikuj poprawność danych i mediów, potem silnik egzaminu.
+
+## Uruchomienie importera
+
+Użyj Pythona 3.11 lub nowszego. Polecenia wykonuj w katalogu głównym repozytorium. Umieść oryginalny plik Ministerstwa Infrastruktury pod ścieżką `local-data/KATALOG_dla_kandydatów_na_kierowców_072026.xlsx`. Archiwa ZIP, jeśli je masz, umieść w `local-data/media/`. Repozytorium ignoruje katalog `local-data/`.
+
+Najpierw wygeneruj raport kontrolny. Katalog wyjściowy musi być nowy lub pusty. Domyślne oznaczenie `DEMO` pozwala przejrzeć wyniki bez udostępniania pytań w oficjalnej puli aplikacji.
+
+```sh
+python3 tools/import_questions.py \
+  --xlsx 'local-data/KATALOG_dla_kandydatów_na_kierowców_072026.xlsx' \
+  --dataset-version 2026-07-B \
+  --category B \
+  --source-reference 'Ministerstwo Infrastruktury, katalog z lipca 2026' \
+  --output-dir local-data/review-2026-07-B
+```
+
+Import wymaga 27 niepustych nagłówków w pierwszym wierszu. Dla kolumn 1–11 sprawdza ustalone nazwy, ignorując różnice wielkości liter, znaków diakrytycznych i interpunkcji. Dla kolumn 12–27 sprawdza pozycję, pole pytania lub odpowiedzi oraz oznaczenie PJM lub języka. Rozpoznaje między innymi EN lub angielski, DE lub niemiecki oraz UK/UA lub ukraiński.
+
+W `import-report.json` sprawdź liczby rekordów, wybraną kategorię, liczbę przyjętych pytań oraz zgłoszenia z numerami wierszy i identyfikatorami. Porównaj wyniki z liczbami kontrolnymi powyżej. Rekordy z błędami pozostają poza pakietem. Raport może zawierać błędy pojedynczych rekordów również wtedy, gdy importer wygenerował `questions.json`. Kod wyjścia 0 oznacza użyteczny pakiet, również gdy raport zawiera odrzucone wiersze lub brakujące media. Kod 2 oznacza niepoprawne wywołanie lub brak użytecznego pakietu, na przykład niezgodny układ arkusza lub brak poprawnych rekordów wybranej kategorii. Kod 3 oznacza błąd odczytu archiwum albo przygotowania mediów. W takim przypadku poprawne pytania i raporty pozostają w katalogu wynikowym.
+
+Po potwierdzeniu pochodzenia pliku i warunków użycia w aplikacji oraz po przeglądzie raportu uruchom import z `--verified-official --rights-verified`. Zachowaj identyfikator wersji powiązany z rzeczywistym wydaniem katalogu. Jeśli zawartość pakietu się zmieni, użyj nowego identyfikatora wersji.
+
+```sh
+python3 tools/import_questions.py \
+  --xlsx 'local-data/KATALOG_dla_kandydatów_na_kierowców_072026.xlsx' \
+  --dataset-version 2026-07-B \
+  --category B \
+  --source-reference 'Ministerstwo Infrastruktury, katalog z lipca 2026' \
+  --verified-official --rights-verified \
+  --output-dir local-data/import-2026-07-B
+```
+
+Zachowaj raporty i źródła lokalnie. `questions.json` zawiera wersję formatu, wersję i identyfikację źródła, jego SHA-256, kategorię importu oraz pytania z kategoriami, punktacją, odpowiedziami i dostępnymi tłumaczeniami. Puste wartości tłumaczeń pozostają puste.
+
+## Media
+
+Dodaj `--media-zip local-data/media/nazwa-archiwum.zip` dla każdego pobranego archiwum. Tryb domyślny porównuje referencje pytań z katalogami ZIP. W `media-manifest.json` sprawdź znalezione, brakujące, niejednoznaczne i nieużywane pliki. Nieużywane pliki są liczone względem przyjętych pytań wybranej kategorii. Dopasowanie uwzględnia najpierw dokładną nazwę pliku, a w dalszej kolejności pojedynczy wynik po normalizacji Unicode i wielkości liter. W pakiecie jest zachowana oryginalna nazwa z arkusza.
+
+Do przygotowania mediów podaj dodatkowo `--prepare-media --rights-verified`. Potrzebny jest `ffmpeg` z koderami H.264 (libx264) i AAC. Wskaż własną instalację przez `--ffmpeg /ścieżka/do/ffmpeg`, jeśli program jest poza `PATH`. Importer przetwarza wyłącznie znalezione pliki, do których odwołują się przyjęte pytania. Zdjęcia pozostają plikami JPG, a filmy WMV przechodzą konwersję do MP4 z wideo H.264 i dźwiękiem AAC, jeśli ścieżka dźwiękowa występuje. Ścieżki plików wynikowych w `media/` są zapisywane w pakiecie pytań. Brak lub niejednoznaczność pliku pozostawia pustą ścieżkę. Przejrzyj raport mediów przed użyciem zestawu w egzaminie.
+
+Archiwa, oryginały i pliki wynikowe przechowuj poza Gitem. Przy kompilacji z przygotowanymi mediami APK będzie zawierał wyniki z `media/`. Do testów importu tekstowego wygeneruj pakiet bez `--prepare-media`.
+
+## Wczytanie katalogu w Androidzie
+
+```sh
+./gradlew :app:assembleDebug -PprawkoCatalogDir=local-data/import-2026-07-B
+```
+
+Opcjonalna właściwość `prawkoCatalogDir` wskazuje katalog wyjściowy importera. Gradle dołącza `questions.json` i przygotowane pliki z `media/`. Po uruchomieniu aplikacja waliduje pakiet i zapisuje go w jednej transakcji Room. Schemat v2 rozdziela wersje, pytania, kategorie, tłumaczenia i media. Migracja z v1 zachowuje dotychczasowe rekordy. Wersja z identyczną zawartością może być uruchamiana ponownie bez duplikowania danych. Zmieniona zawartość z tym samym identyfikatorem wersji powoduje odrzucenie importu i zachowanie już zapisanych danych. Pakiety DEMO nie są udostępniane w oficjalnej puli. Kompilacja bez tej właściwości pomija dołączany pakiet.
+
+## Testy
+
+```sh
+python3 -m unittest discover -s tools/tests -v
+./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+./gradlew :app:connectedDebugAndroidTest
+```
+
+Testy Pythona tworzą syntetyczne arkusze DEMO i archiwa ZIP podczas uruchomienia. Test liczb kontrolnych katalogu 07.2026 jest pomijany bez pliku źródłowego pod podaną ścieżką. Test kodeków wykorzystuje `ffmpeg` oraz `ffprobe`. Testy Androida obejmują odczyt pakietu i lokalną bazę Room. Uruchomienie ostatniego polecenia wymaga emulatora lub urządzenia.

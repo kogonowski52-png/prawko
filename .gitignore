@@ -20,3 +20,6 @@ captures/
 *.keystore
 .env
 .env.*
+
+# Python import tools
+__pycache__/

@@ -1,0 +1,360 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "7644bb03e94264f6693164b4f372c926",
+    "entities": [
+      {
+        "tableName": "question_datasets",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`version` TEXT NOT NULL, `source` TEXT NOT NULL, `sourceReference` TEXT NOT NULL, `selectedCategory` TEXT, `sourceSha256` TEXT, `payloadSha256` TEXT, PRIMARY KEY(`version`))",
+        "fields": [
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceReference",
+            "columnName": "sourceReference",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selectedCategory",
+            "columnName": "selectedCategory",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceSha256",
+            "columnName": "sourceSha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "payloadSha256",
+            "columnName": "payloadSha256",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "version"
+          ]
+        }
+      },
+      {
+        "tableName": "active_question_datasets",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`category` TEXT NOT NULL, `datasetVersion` TEXT NOT NULL, PRIMARY KEY(`category`), FOREIGN KEY(`datasetVersion`) REFERENCES `question_datasets`(`version`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "category"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_active_question_datasets_datasetVersion",
+            "unique": false,
+            "columnNames": [
+              "datasetVersion"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_active_question_datasets_datasetVersion` ON `${TABLE_NAME}` (`datasetVersion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "question_datasets",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "datasetVersion"
+            ],
+            "referencedColumns": [
+              "version"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "questions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datasetVersion` TEXT NOT NULL, `id` TEXT NOT NULL, `type` TEXT NOT NULL, `prompt` TEXT NOT NULL, `points` INTEGER NOT NULL, `correctAnswer` TEXT NOT NULL, `optionA` TEXT, `optionB` TEXT, `optionC` TEXT, PRIMARY KEY(`datasetVersion`, `id`), FOREIGN KEY(`datasetVersion`) REFERENCES `question_datasets`(`version`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prompt",
+            "columnName": "prompt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "points",
+            "columnName": "points",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctAnswer",
+            "columnName": "correctAnswer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionA",
+            "columnName": "optionA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionB",
+            "columnName": "optionB",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionC",
+            "columnName": "optionC",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "datasetVersion",
+            "id"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "question_datasets",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "datasetVersion"
+            ],
+            "referencedColumns": [
+              "version"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "question_categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datasetVersion` TEXT NOT NULL, `questionId` TEXT NOT NULL, `category` TEXT NOT NULL, PRIMARY KEY(`datasetVersion`, `questionId`, `category`), FOREIGN KEY(`datasetVersion`, `questionId`) REFERENCES `questions`(`datasetVersion`, `id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionId",
+            "columnName": "questionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "datasetVersion",
+            "questionId",
+            "category"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "questions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "datasetVersion",
+              "questionId"
+            ],
+            "referencedColumns": [
+              "datasetVersion",
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "question_translations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datasetVersion` TEXT NOT NULL, `questionId` TEXT NOT NULL, `language` TEXT NOT NULL, `prompt` TEXT, `optionA` TEXT, `optionB` TEXT, `optionC` TEXT, PRIMARY KEY(`datasetVersion`, `questionId`, `language`), FOREIGN KEY(`datasetVersion`, `questionId`) REFERENCES `questions`(`datasetVersion`, `id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionId",
+            "columnName": "questionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prompt",
+            "columnName": "prompt",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionA",
+            "columnName": "optionA",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionB",
+            "columnName": "optionB",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionC",
+            "columnName": "optionC",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "datasetVersion",
+            "questionId",
+            "language"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "questions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "datasetVersion",
+              "questionId"
+            ],
+            "referencedColumns": [
+              "datasetVersion",
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "question_media",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datasetVersion` TEXT NOT NULL, `questionId` TEXT NOT NULL, `role` TEXT NOT NULL, `originalName` TEXT NOT NULL, `assetPath` TEXT, `type` TEXT, PRIMARY KEY(`datasetVersion`, `questionId`, `role`), FOREIGN KEY(`datasetVersion`, `questionId`) REFERENCES `questions`(`datasetVersion`, `id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionId",
+            "columnName": "questionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalName",
+            "columnName": "originalName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assetPath",
+            "columnName": "assetPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "datasetVersion",
+            "questionId",
+            "role"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "questions",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "datasetVersion",
+              "questionId"
+            ],
+            "referencedColumns": [
+              "datasetVersion",
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7644bb03e94264f6693164b4f372c926')"
+    ]
+  }
+}
