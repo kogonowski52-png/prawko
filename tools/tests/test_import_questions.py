@@ -19,11 +19,11 @@ OFFICE_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationship
 HEADERS = (
     "Lp", "Numer pytania", "Pytanie", "Odpowiedź A", "Odpowiedź B", "Odpowiedź C", "Poprawna odp",
     "Media", "Zakres struktury", "Liczba punktów", "Kategorie",
-    "Nazwa media tłumaczenie migowe (PJM) treść pyt", "Nazwa media PJM odp. A",
-    "Nazwa media PJM odp. B", "Nazwa media PJM odp. C",
-    "Treść pytania (angielski)", "Odpowiedź A (ang.)", "Odpowiedź B EN", "Odpowiedź C EN",
-    "Pytanie po niemiecku", "Odpowiedź A DE", "Odpowiedź B DE", "Odpowiedź C DE",
-    "Pytanie (ukraiński)", "Odpowiedź A UA", "Odpowiedź B UA", "Odpowiedź C UA",
+    "Nazwa media tłumaczenie migowe (PJM) treść pyt", "Nazwa media tłumaczenie migowe (PJM) treść odp A",
+    "Nazwa media tłumaczenie migowe (PJM) treść odp B", "Nazwa media tłumaczenie migowe (PJM) treść odp C",
+    "Pytanie [EN]", "Odpowiedź A [EN]", "Odpowiedź B [EN]", "Odpowiedź C [EN]",
+    "Pytanie [D]", "Odpowiedź A [D]", "Odpowiedź B [D]", "Odpowiedź C [D]",
+    "Pytanie [UA]", "Odpowiedź A [UA]", "Odpowiedź B [UA]", "Odpowiedź C [UA]",
 )
 
 
