@@ -7,10 +7,13 @@ source-data/
 
 # Android / Gradle
 .gradle/
+.kotlin/
 **/build/
 local.properties
 .idea/
 *.iml
+captures/
+.DS_Store
 
 # Secrets and signing keys
 *.jks

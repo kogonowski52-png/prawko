@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="prawko_window">#F5F7F4</color>
+    <color name="prawko_icon_background">#122638</color>
+    <bool name="prawko_light_bars">true</bool>
+</resources>
