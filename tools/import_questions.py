@@ -35,7 +35,7 @@ FIXED_HEADERS = (
 MEDIA_COLUMNS = ((7, "QUESTION"), (11, "PJM_QUESTION"), (12, "PJM_A"), (13, "PJM_B"), (14, "PJM_C"))
 LANGUAGES = {
     "EN": {"en", "ang", "angielski", "angielskim", "angielsku", "english"},
-    "DE": {"de", "niem", "niemiecki", "niemieckim", "niemiecku", "german"},
+    "DE": {"de", "d", "niem", "niemiecki", "niemieckim", "niemiecku", "german"},
     "UK": {"uk", "ua", "ukr", "ukrainski", "ukrainskim", "ukrainsku", "ukrainian"},
 }
 STRUCTURES = {"podstawowy": "BASIC", "specjalistyczny": "SPECIALIST"}
