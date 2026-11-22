@@ -1,0 +1,19 @@
+# Large source datasets and media downloaded from gov.pl
+local-data/
+source-data/
+*.xlsx
+*.zip
+*.wmv
+
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+
+# Secrets and signing keys
+*.jks
+*.keystore
+.env
+.env.*
