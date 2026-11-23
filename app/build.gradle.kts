@@ -43,8 +43,7 @@ android {
             if (previewMode) {
                 applicationIdSuffix = ".preview"
                 versionNameSuffix = "-Katalog-TEST"
-                resValue("string", "app_name_preview", "Prawko Katalog TEST")
-                manifestPlaceholders["appLabel"] = "@string/app_name_preview"
+                resValue("string", "app_name", "Prawko Katalog TEST")
             }
         }
     }

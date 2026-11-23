@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -46,7 +45,6 @@ import pl.prawko.app.ui.navigation.PrawkoFeatures
 import pl.prawko.app.ui.theme.PrawkoTheme
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-@RequiresApi(Build.VERSION_CODES.Q)
 class LocalCatalogNavigationTest {
     @get:Rule
     val compose = createComposeRule()

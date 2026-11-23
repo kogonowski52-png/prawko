@@ -2,7 +2,6 @@ package pl.prawko.app.preview
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,7 +26,6 @@ import pl.prawko.app.domain.AnswerChoice
 
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-@RequiresApi(Build.VERSION_CODES.Q)
 class LocalCatalogRepositoryTest {
     @Test
     fun importsLargeCatalogAndPreservesQuestionsAndProgressThroughRejectedImportsAndVersionChanges() = runBlocking {
