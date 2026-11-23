@@ -33,10 +33,12 @@ jobs:
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
 
       - name: Install Android SDK platform
-        run: sdkmanager --install "platforms;android-36" "build-tools;35.0.0"
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;35.0.0"
 
       - name: Assemble DEMO APK
         run: bash ./gradlew --no-daemon :app:assembleDebug -PprawkoDemo=true
