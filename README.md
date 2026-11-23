@@ -79,6 +79,10 @@ Lokalna kompilacja i testy wariantu testowego
 ./gradlew -PprawkoLocalPreview=true :app:connectedDebugAndroidTest
 ```
 
+### Test zdjęcia i filmu
+
+Generator syntetycznej paczki do sprawdzenia JPG i MP4 w trybie nauki uruchomisz na Windowsie poleceniem `py -3 .\tools\generate_demo_media.py`. [Test multimediów w Prawko Katalog TEST](docs/test-multimediow-android.md)
+
 ## Struktura
 
 | Katalog | Odpowiedzialność |
