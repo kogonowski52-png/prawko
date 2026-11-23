@@ -1,0 +1,62 @@
+name: Android Katalog TEST APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - "gradle/**"
+      - ".github/workflows/android-catalog-test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-catalog-test:
+    name: Build Prawko Katalog TEST
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android SDK platform
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;35.0.0"
+
+      - name: Assemble catalog preview APK
+        run: bash ./gradlew --no-daemon :app:assembleDebug -PprawkoLocalPreview=true
+
+      - name: Check that the APK contains no catalog assets
+        run: |
+          unzip -Z1 app/build/outputs/apk/debug/app-debug.apk > apk-files.txt
+          if grep '^assets/catalog/' apk-files.txt; then
+            echo "::error::Unexpected bundled catalog in the preview APK"
+            exit 1
+          fi
+
+      - name: Upload catalog preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: prawko-katalog-test-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

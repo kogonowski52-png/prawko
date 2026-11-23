@@ -8,7 +8,13 @@ plugins {
     id("androidx.room")
 }
 
-val demoMode = providers.gradleProperty("prawkoDemo").map(String::toBooleanStrict).orElse(false)
+val demoMode = providers.gradleProperty("prawkoDemo").map(String::toBooleanStrict).getOrElse(false)
+val previewMode = providers.gradleProperty("prawkoLocalPreview").map(String::toBooleanStrict).getOrElse(false)
+val catalogPath = providers.gradleProperty("prawkoCatalogDir").orNull
+require(!demoMode || !previewMode) { "Use either prawkoDemo or prawkoLocalPreview" }
+require(catalogPath == null || (!demoMode && !previewMode)) {
+    "Bundled catalogs cannot be combined with prawkoDemo or prawkoLocalPreview"
+}
 
 android {
     namespace = "pl.prawko.app"
@@ -27,13 +33,29 @@ android {
 
     buildTypes {
         debug {
-            if (demoMode.get()) {
+            if (demoMode) {
                 applicationIdSuffix = ".demo"
                 versionNameSuffix = "-DEMO"
                 buildConfigField("boolean", "PRAWKO_DEMO", "true")
                 resValue("string", "app_name_demo", "Prawko DEMO")
                 manifestPlaceholders["appLabel"] = "@string/app_name_demo"
             }
+            if (previewMode) {
+                applicationIdSuffix = ".preview"
+                versionNameSuffix = "-Katalog-TEST"
+                resValue("string", "app_name_preview", "Prawko Katalog TEST")
+                manifestPlaceholders["appLabel"] = "@string/app_name_preview"
+            }
+        }
+    }
+
+    sourceSets {
+        named("debug") {
+            java.srcDir(if (previewMode) "src/catalogPreview/java" else "src/noCatalogPreview/java")
+        }
+        named("release") { java.srcDir("src/noCatalogPreview/java") }
+        if (previewMode) {
+            named("androidTest") { java.srcDir("src/catalogPreviewAndroidTest/java") }
         }
     }
 
@@ -90,8 +112,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
 
-providers.gradleProperty("prawkoCatalogDir").orNull?.let { path ->
-    require(!demoMode.get()) { "Use either prawkoDemo or prawkoCatalogDir for a debug build" }
+catalogPath?.let { path ->
     val catalogDir = rootProject.file(path)
     require(catalogDir.resolve("questions.json").isFile) {
         "prawkoCatalogDir must point to an importer output directory containing questions.json"

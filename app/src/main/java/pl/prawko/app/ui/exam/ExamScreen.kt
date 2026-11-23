@@ -254,7 +254,11 @@ private fun ExamPlan(state: ExamScreenState.Intro, onRetry: () -> Unit, onStart:
         }
     } else {
         ExamNotice("Za mało gotowych pytań") {
-            Text("Egzamin uruchomi się po uzupełnieniu poniższych grup. Pytania z brakującymi mediami są pomijane.")
+            if (state.shortages.any { it.unavailableMedia > 0 }) {
+                Text("Brakuje zdjęć lub filmów do skompletowania pytań. Sprawdź paczki multimediów w Ustawieniach.")
+            } else {
+                Text("Egzamin uruchomi się, gdy katalog będzie zawierał wystarczającą liczbę pytań w poniższych grupach.")
+            }
             state.shortages.forEach { shortage ->
                 HorizontalDivider()
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

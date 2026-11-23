@@ -13,14 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun DemoBanner() {
+internal fun CatalogModeBanner(label: String) {
     Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
         Box(
             Modifier.fillMaxWidth().statusBarsPadding().padding(vertical = 4.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                "DEMO · Dane syntetyczne",
+                label,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )

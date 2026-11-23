@@ -60,6 +60,25 @@ Wariant **Prawko DEMO** ma osobny identyfikator `pl.prawko.app.demo`, lokalną b
 
 Testy JVM obejmują limity czasu, koszyki, wznowienie, cały przebieg egzaminu z kontrolowanym zegarem oraz filtrowanie nauki. Testy instrumentowane obejmują migrację Room, przejście przez ekrany, zapis postępu i lokalne odtwarzanie syntetycznego MP4. Testy narzędzi uruchomisz przez `python3 -m unittest discover -s tools/tests -v`.
 
+### Prawko Katalog TEST na Samsungu
+
+1. Zaloguj się na GitHubie, otwórz najnowsze udane uruchomienie z gałęzi `main` i w sekcji **Artifacts** pobierz `prawko-katalog-test-apk`. [Android Katalog TEST APK](https://github.com/kogonowski52-png/prawko/actions/workflows/android-catalog-test.yml)
+2. Rozpakuj pobrane archiwum i zainstaluj `app-debug.apk` na telefonie. Jeśli Android poprosi o zgodę na instalację z tego źródła, udziel jej aplikacji, z której otwierasz APK. **Prawko Katalog TEST** ma identyfikator `pl.prawko.app.preview` i instaluje się obok **Prawko DEMO**.
+3. Skopiuj swój `questions.json` do folderu **Pobrane** na telefonie. Dla katalogu z lipca 2026 r. jest to plik z folderu `C:\Prawko\prawko\local-data\review-2026-07-B-media-4\`.
+4. Otwórz **Prawko Katalog TEST**. Przejdź do **Ustawienia → Wczytaj lokalny katalog (JSON)** i wybierz plik w systemowym oknie Androida.
+5. Sprawdź wersję i liczbę pytań w Ustawieniach. Dla przygotowanego katalogu oczekiwane wartości to `DEMO-2026-07-B` i **2128**. Przejdź do **Start → Nauka pytań**.
+
+Importer przyjmuje katalog kategorii B zapisany przez importer Prawko ze źródłem `DEMO`, w formacie JSON do 32 MiB. Dane i postęp są przechowywane w prywatnej bazie Room aplikacji testowej. Ponowny wybór tego samego pliku aktywuje zapisaną wersję. Przy zmianie zawartości wygeneruj katalog z inną wartością `--dataset-version`, aby zachować historię poprzedniego zestawu.
+
+W nauce przy pytaniach bez wymaganych mediów zobaczysz informację o brakującym zdjęciu lub filmie. Egzamin pomija takie pytania i wymaga odpowiedniej liczby dostępnych pytań w każdym koszyku. Katalog bez przygotowanych ścieżek do mediów pozwala przeglądać tekst pytań. Do odtwarzania zdjęć i filmów potrzebny jest katalog z przygotowanymi ścieżkami i odpowiadająca mu paczka ZIP. [Przygotowanie i instalacja paczek multimediów](docs/import-katalog-072026.md)
+
+Lokalna kompilacja i testy wariantu testowego
+
+```sh
+./gradlew -PprawkoLocalPreview=true :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+./gradlew -PprawkoLocalPreview=true :app:connectedDebugAndroidTest
+```
+
 ## Struktura
 
 | Katalog | Odpowiedzialność |

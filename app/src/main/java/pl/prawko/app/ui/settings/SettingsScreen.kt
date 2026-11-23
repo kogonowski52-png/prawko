@@ -41,6 +41,7 @@ fun SettingsScreen(
     onAppearanceChange: (Appearance) -> Unit,
     onMediaPacks: () -> Unit,
     modifier: Modifier = Modifier,
+    catalogPreview: (@Composable () -> Unit)? = null,
 ) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Column(
@@ -56,6 +57,10 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.headlineLarge,
             )
             Spacer(Modifier.height(24.dp))
+            if (catalogPreview != null) {
+                catalogPreview()
+                Spacer(Modifier.height(24.dp))
+            }
             PrawkoSectionLabel("Motyw aplikacji")
             Spacer(Modifier.height(10.dp))
             OutlinedCard(Modifier.fillMaxWidth()) {

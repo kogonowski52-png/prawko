@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                     installMediaPack = { version, input, checksum ->
                         container.mediaRepository.installPack(version, input, checksum).fileCount
                     },
+                    catalogPreviewSettings = container.catalogPreview?.settings,
                 )
             }
             val state by viewModel.uiState.collectAsStateWithLifecycle()

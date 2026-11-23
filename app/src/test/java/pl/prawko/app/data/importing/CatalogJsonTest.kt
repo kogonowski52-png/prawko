@@ -1,6 +1,8 @@
 package pl.prawko.app.data.importing
 
 import java.io.IOException
+import java.io.InputStream
+import java.io.SequenceInputStream
 import java.security.MessageDigest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -70,6 +72,37 @@ class CatalogJsonTest {
             byteArrayOf(0xc3.toByte(), 0x28) +
             demoBundle().substringAfter("Treść DEMO").toByteArray()
         assertThrows(IOException::class.java) { parseCatalog(invalidUtf8.inputStream()) }
+    }
+
+    @Test
+    fun appliesTheSizeLimitToAllBytesIncludingTrailingWhitespace() {
+        val bundle = demoBundle().toByteArray()
+        assertEquals("demo-1", parseCatalog(padded(bundle, 32 * 1024 * 1024)).bundle.datasetVersion)
+        assertThrows(CatalogTooLargeException::class.java) {
+            parseCatalog(padded(bundle, 32 * 1024 * 1024 + 1))
+        }
+    }
+
+    private fun padded(bundle: ByteArray, size: Int): InputStream {
+        val trailingSpaces = object : InputStream() {
+            private var remaining = size - bundle.size
+
+            override fun read(): Int {
+                if (remaining == 0) return -1
+                remaining--
+                return ' '.code
+            }
+
+            override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+                if (length == 0) return 0
+                if (remaining == 0) return -1
+                val read = minOf(length, remaining)
+                buffer.fill(' '.code.toByte(), offset, offset + read)
+                remaining -= read
+                return read
+            }
+        }
+        return SequenceInputStream(bundle.inputStream(), trailingSpaces)
     }
 
     private fun demoBundle(questions: String = demoQuestion()): String = """

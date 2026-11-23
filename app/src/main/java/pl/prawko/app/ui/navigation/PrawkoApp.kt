@@ -42,7 +42,7 @@ import pl.prawko.app.domain.QuestionRepository
 import pl.prawko.app.domain.StudyProgressRepository
 import pl.prawko.app.domain.exam.ExamRepository
 import pl.prawko.app.ui.PrawkoUiState
-import pl.prawko.app.ui.components.DemoBanner
+import pl.prawko.app.ui.components.CatalogModeBanner
 import pl.prawko.app.ui.components.PrawkoIcon
 import pl.prawko.app.ui.components.PrawkoSymbol
 import pl.prawko.app.ui.dashboard.DashboardScreen
@@ -61,6 +61,7 @@ internal class PrawkoFeatures(
     val mediaRepository: MediaRepository,
     val isDemo: Boolean,
     val installMediaPack: suspend (String, InputStream, String) -> Int,
+    val catalogPreviewSettings: (@Composable () -> Unit)? = null,
 )
 
 private const val ReviewRoute = "study/review/{version}?ids={ids}"
@@ -107,7 +108,12 @@ internal fun PrawkoApp(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { if (features.isDemo) DemoBanner() },
+        topBar = {
+            when {
+                features.catalogPreviewSettings != null -> CatalogModeBanner("KATALOG TEST · Dane lokalne")
+                features.isDemo -> CatalogModeBanner("DEMO · Dane syntetyczne")
+            }
+        },
         bottomBar = {
             if (preferences?.onboardingCompleted == true && tab != null) {
                 AppNavigationBar(tab, navController::selectTab)
@@ -156,6 +162,7 @@ internal fun PrawkoApp(
                         appearance = preferences.appearance,
                         onAppearanceChange = onAppearanceChange,
                         onMediaPacks = { navController.navigate(MediaPacksRoute) },
+                        catalogPreview = features.catalogPreviewSettings,
                     )
                 }
                 composable(AppTab.PROGRESS.route) {

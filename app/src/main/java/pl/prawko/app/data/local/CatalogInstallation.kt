@@ -7,22 +7,27 @@ import pl.prawko.app.domain.QuestionMediaRole
 import pl.prawko.app.domain.QuestionMediaType
 import pl.prawko.app.domain.QuestionType
 
+internal class CatalogVersionConflictException : IllegalStateException("Catalog version already exists with a different payload")
+
 /** Installs a validated bundle as an immutable version, then activates the selected category. */
 internal suspend fun PrawkoDatabase.installCatalog(
     bundle: CatalogBundle,
     payloadSha256: String,
+    activateDemo: Boolean = false,
 ): Boolean = withTransaction {
     val dao = questionDao()
     val version = bundle.datasetVersion
+    val source = DatasetSource.valueOf(bundle.source)
+    val active = ActiveQuestionDatasetEntity(bundle.category, version)
     val existing = dao.dataset(version)
     if (existing != null) {
-        check(existing.payloadSha256 == payloadSha256) {
-            "Catalog version already exists with a different payload"
+        if (existing.payloadSha256 != payloadSha256 || existing.source != source) {
+            throw CatalogVersionConflictException()
         }
+        if (source == DatasetSource.DEMO && activateDemo) dao.activateDataset(active)
         return@withTransaction false
     }
 
-    val source = DatasetSource.valueOf(bundle.source)
     dao.insertDataset(
         QuestionDatasetEntity(
             version = version,
@@ -87,8 +92,8 @@ internal suspend fun PrawkoDatabase.installCatalog(
             }
         },
     )
-    if (source == DatasetSource.VERIFIED_OFFICIAL) {
-        dao.activateDataset(ActiveQuestionDatasetEntity(bundle.category, version))
+    if (source == DatasetSource.VERIFIED_OFFICIAL || activateDemo) {
+        dao.activateDataset(active)
     }
     true
 }

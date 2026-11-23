@@ -23,6 +23,8 @@ private val MediaPathPattern = Regex("media/[0-9a-f]{64}\\.(jpg|mp4)")
 private val Languages = setOf("EN", "DE", "UK")
 private val MediaRoles = setOf("QUESTION", "PJM_QUESTION", "PJM_A", "PJM_B", "PJM_C")
 
+internal class CatalogTooLargeException : IOException("Catalog exceeds 32 MiB")
+
 /** Checks the asset format while hashing the exact bytes presented to Room. Owns [input]. */
 internal fun parseCatalog(input: InputStream): ParsedCatalog {
     val digest = MessageDigest.getInstance("SHA-256")
@@ -192,6 +194,6 @@ private class CappedInputStream(input: InputStream) : FilterInputStream(input) {
 
     private fun countBytes(count: Int) {
         bytesRead += count
-        if (bytesRead > MaxPackageBytes) throw IOException("Catalog exceeds 32 MiB")
+        if (bytesRead > MaxPackageBytes) throw CatalogTooLargeException()
     }
 }

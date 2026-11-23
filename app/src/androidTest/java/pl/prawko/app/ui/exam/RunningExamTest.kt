@@ -52,7 +52,7 @@ import pl.prawko.app.domain.exam.ExamClock
 import pl.prawko.app.domain.exam.ExamDrawResult
 import pl.prawko.app.domain.exam.ExamEngine
 import pl.prawko.app.domain.exam.ExamSession
-import pl.prawko.app.ui.components.DemoBanner
+import pl.prawko.app.ui.components.CatalogModeBanner
 import pl.prawko.app.ui.theme.PrawkoTheme
 
 class RunningExamTest {
@@ -73,7 +73,7 @@ class RunningExamTest {
                     PrawkoTheme(darkTheme = layout.dark) {
                         Scaffold(
                             containerColor = MaterialTheme.colorScheme.background,
-                            topBar = { DemoBanner() },
+                            topBar = { CatalogModeBanner("DEMO · Dane syntetyczne") },
                             contentWindowInsets = WindowInsets.safeDrawing,
                         ) { padding ->
                             ExamContent(

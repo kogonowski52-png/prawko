@@ -21,9 +21,10 @@ import pl.prawko.app.domain.QuestionTranslation
 
 internal class RoomQuestionRepository(
     private val dao: QuestionDao,
+    private val source: DatasetSource = DatasetSource.VERIFIED_OFFICIAL,
 ) : QuestionRepository {
     override val activeDatasetVersion: Flow<String?> =
-        dao.observeActiveVersion(LicenseCategory.B.name)
+        dao.observeActiveVersion(LicenseCategory.B.name, source)
             .catch { error ->
                 if (error is SQLiteException) emit(null) else throw error
             }
@@ -35,7 +36,7 @@ internal class RoomQuestionRepository(
         }.distinctUntilChanged()
 
     override fun observeQuestions(datasetVersion: String): Flow<List<Question>> =
-        dao.observeQuestions(datasetVersion, LicenseCategory.B.name, DatasetSource.VERIFIED_OFFICIAL)
+        dao.observeQuestions(datasetVersion, LicenseCategory.B.name, source)
             .map { rows ->
                 if (rows.isEmpty()) return@map emptyList()
 

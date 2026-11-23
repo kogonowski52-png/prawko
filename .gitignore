@@ -4,6 +4,7 @@ source-data/
 *.xlsx
 *.zip
 *.wmv
+questions.json
 
 # Android / Gradle
 .gradle/

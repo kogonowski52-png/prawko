@@ -14,7 +14,7 @@ internal interface QuestionDao {
         FROM active_question_datasets AS active
         JOIN question_datasets AS d ON d.version = active.datasetVersion
         WHERE active.category = :category
-          AND d.source = 'VERIFIED_OFFICIAL' AND d.selectedCategory = :category
+          AND d.source = :source AND d.selectedCategory = :category
           AND EXISTS (
               SELECT 1
               FROM question_categories AS c
@@ -22,7 +22,10 @@ internal interface QuestionDao {
           )
         """,
     )
-    fun observeActiveVersion(category: String): Flow<String?>
+    fun observeActiveVersion(
+        category: String,
+        source: DatasetSource = DatasetSource.VERIFIED_OFFICIAL,
+    ): Flow<String?>
 
     @Query(
         """
@@ -52,6 +55,12 @@ internal interface QuestionDao {
 
     @Query("SELECT * FROM question_datasets WHERE version = :version")
     suspend fun dataset(version: String): QuestionDatasetEntity?
+
+    @Query("SELECT COUNT(*) FROM questions WHERE datasetVersion = :version")
+    suspend fun questionCount(version: String): Int
+
+    @Query("SELECT COUNT(*) FROM question_media WHERE datasetVersion = :version AND assetPath IS NULL")
+    suspend fun mediaWithoutPathCount(version: String): Int
 
     @Insert
     suspend fun insertDataset(dataset: QuestionDatasetEntity)

@@ -49,7 +49,11 @@ internal fun StudyDestination(
     if (datasetVersion == null) {
         StudyMessage(
             title = "Brak bazy pytań",
-            description = "Do rozpoczęcia nauki potrzebny jest zweryfikowany katalog kategorii B.",
+            description = if (features.catalogPreviewSettings != null) {
+                "Wczytaj plik questions.json kategorii B w Ustawieniach."
+            } else {
+                "Do rozpoczęcia nauki potrzebny jest zweryfikowany katalog kategorii B."
+            },
             onBack = onBack,
         )
         return

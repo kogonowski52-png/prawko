@@ -32,8 +32,10 @@ class AppContainer(context: Context) {
     private val catalogInitialization by lazy {
         applicationScope.async { installBundledCatalog(appContext.assets, database) }
     }
+    internal val catalogPreview by lazy { createCatalogPreview(appContext) { database } }
 
     val questionRepository: QuestionRepository by lazy {
+        catalogPreview?.let { return@lazy it.questions }
         val local = RoomQuestionRepository(database.questionDao())
         selectBuildQuestionRepository(object : QuestionRepository {
             override val availability = afterCatalogInitialization(local.availability)

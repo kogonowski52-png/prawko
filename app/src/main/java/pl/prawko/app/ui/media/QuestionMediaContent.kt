@@ -90,7 +90,11 @@ fun QuestionMediaContent(
         ) {
             when {
                 failed -> Text(
-                    "Materiał do pytania jest niedostępny. Sama treść może nie wystarczyć do oceny sytuacji.",
+                    text = when (reference.type) {
+                        QuestionMediaType.IMAGE -> "Brak wymaganego zdjęcia — odpowiedź może zależeć od materiału."
+                        QuestionMediaType.VIDEO -> "Brak wymaganego filmu — odpowiedź może zależeć od materiału."
+                        null -> "Brak wymaganego materiału — odpowiedź może zależeć od materiału."
+                    },
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.bodyMedium,
                 )
