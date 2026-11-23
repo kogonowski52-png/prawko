@@ -97,7 +97,17 @@ Dodaj `--media-zip local-data/media/nazwa-archiwum.zip` dla każdego pobranego a
 
 Do przygotowania mediów podaj dodatkowo `--prepare-media --rights-verified`. Potrzebny jest `ffmpeg` z koderami H.264 (libx264) i AAC. Wskaż własną instalację przez `--ffmpeg /ścieżka/do/ffmpeg`, jeśli program jest poza `PATH`. Importer przetwarza wyłącznie znalezione pliki, do których odwołują się przyjęte pytania. Zdjęcia pozostają plikami JPG, a filmy WMV przechodzą konwersję do MP4 z wideo H.264 i dźwiękiem AAC, jeśli ścieżka dźwiękowa występuje. Ścieżki plików wynikowych w `media/` są zapisywane w pakiecie pytań. Brak lub niejednoznaczność pliku pozostawia pustą ścieżkę. Przejrzyj raport mediów przed użyciem zestawu w egzaminie.
 
-Archiwa, oryginały i pliki wynikowe przechowuj poza Gitem. Przy kompilacji z przygotowanymi mediami APK będzie zawierał wyniki z `media/`. Do testów importu tekstowego wygeneruj pakiet bez `--prepare-media`.
+Archiwa, oryginały i pliki wynikowe przechowuj poza Gitem. APK zawiera sam pakiet pytań. Przygotowane media spakuj lokalnie po imporcie z `--prepare-media`.
+
+```sh
+python3 tools/build_media_packs.py \
+  --catalog-dir local-data/import-2026-07-B \
+  --output-dir local-data/packs-2026-07-B
+```
+
+Narzędzie dzieli JPG i MP4 na paczki powiązane z wersją katalogu i zapisuje `SHA256SUMS`. Domyślny limit jednej paczki to 32 MiB, a limit liczby plików to 128. Jeśli pojedynczy plik się nie mieści, ustaw `--max-pack-mib` maksymalnie na 128. Pojedynczy plik może mieć do 64 MiB.
+
+Po zainstalowaniu APK z tą wersją katalogu otwórz **Ustawienia → Paczki multimediów**, wklej sumę SHA-256 odpowiadającą paczce, a następnie wybierz plik ZIP. Aplikacja weryfikuje sumę ZIP i każdą zawartość według manifestu, po czym zapisuje pliki w swojej pamięci podręcznej. Android może zwolnić pamięć podręczną. Paczkę można wczytać ponownie z zachowaniem wersji i sumy. Produkcyjny hosting paczek pozostaje do skonfigurowania.
 
 ## Wczytanie katalogu w Androidzie
 
@@ -105,7 +115,7 @@ Archiwa, oryginały i pliki wynikowe przechowuj poza Gitem. Przy kompilacji z pr
 ./gradlew :app:assembleDebug -PprawkoCatalogDir=local-data/import-2026-07-B
 ```
 
-Opcjonalna właściwość `prawkoCatalogDir` wskazuje katalog wyjściowy importera. Gradle dołącza `questions.json` i przygotowane pliki z `media/`. Po uruchomieniu aplikacja waliduje pakiet i zapisuje go w jednej transakcji Room. Schemat v2 rozdziela wersje, pytania, kategorie, tłumaczenia i media. Migracja z v1 zachowuje dotychczasowe rekordy. Wersja z identyczną zawartością może być uruchamiana ponownie bez duplikowania danych. Zmieniona zawartość z tym samym identyfikatorem wersji powoduje odrzucenie importu i zachowanie już zapisanych danych. Pakiety DEMO nie są udostępniane w oficjalnej puli. Kompilacja bez tej właściwości pomija dołączany pakiet.
+Opcjonalna właściwość `prawkoCatalogDir` wskazuje katalog wyjściowy importera. Gradle dołącza `questions.json`. Po uruchomieniu aplikacja waliduje pakiet i zapisuje go w jednej transakcji Room. Schemat v2 rozdziela wersje, pytania, kategorie, tłumaczenia i media. Migracja z v1 zachowuje dotychczasowe rekordy. Wersja z identyczną zawartością może być uruchamiana ponownie bez duplikowania danych. Zmieniona zawartość z tym samym identyfikatorem wersji powoduje odrzucenie importu i zachowanie już zapisanych danych. Pakiety DEMO nie są udostępniane w oficjalnej puli. Kompilacja bez tej właściwości pomija dołączany pakiet.
 
 ## Testy
 

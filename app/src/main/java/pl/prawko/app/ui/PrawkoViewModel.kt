@@ -18,6 +18,7 @@ import pl.prawko.app.domain.UserPreferences
 data class PrawkoUiState(
     val preferences: UserPreferences? = null,
     val questionAvailability: QuestionAvailability = QuestionAvailability.UNAVAILABLE,
+    val datasetVersion: String? = null,
     val preferenceWriteFailed: Boolean = false,
 )
 
@@ -29,10 +30,16 @@ class PrawkoViewModel(
 
     val uiState: StateFlow<PrawkoUiState> = combine(
         preferencesRepository.preferences,
-        questionRepository.availability,
+        questionRepository.activeDatasetVersion,
         preferenceWriteFailed,
-        ::PrawkoUiState,
-    ).stateIn(
+    ) { preferences, version, writeFailed ->
+        PrawkoUiState(
+            preferences = preferences,
+            questionAvailability = if (version == null) QuestionAvailability.UNAVAILABLE else QuestionAvailability.AVAILABLE,
+            datasetVersion = version,
+            preferenceWriteFailed = writeFailed,
+        )
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PrawkoUiState(),

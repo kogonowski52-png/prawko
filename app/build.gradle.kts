@@ -8,6 +8,8 @@ plugins {
     id("androidx.room")
 }
 
+val demoMode = providers.gradleProperty("prawkoDemo").map(String::toBooleanStrict).orElse(false)
+
 android {
     namespace = "pl.prawko.app"
     compileSdk = 36
@@ -19,10 +21,25 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("boolean", "PRAWKO_DEMO", "false")
+        manifestPlaceholders["appLabel"] = "@string/app_name"
+    }
+
+    buildTypes {
+        debug {
+            if (demoMode.get()) {
+                applicationIdSuffix = ".demo"
+                versionNameSuffix = "-DEMO"
+                buildConfigField("boolean", "PRAWKO_DEMO", "true")
+                resValue("string", "app_name_demo", "Prawko DEMO")
+                manifestPlaceholders["appLabel"] = "@string/app_name_demo"
+            }
+        }
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -53,8 +70,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.media3:media3-exoplayer:1.9.1")
+    implementation("androidx.media3:media3-ui:1.9.1")
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("com.google.code.gson:gson:2.13.2")
@@ -71,6 +91,7 @@ dependencies {
 }
 
 providers.gradleProperty("prawkoCatalogDir").orNull?.let { path ->
+    require(!demoMode.get()) { "Use either prawkoDemo or prawkoCatalogDir for a debug build" }
     val catalogDir = rootProject.file(path)
     require(catalogDir.resolve("questions.json").isFile) {
         "prawkoCatalogDir must point to an importer output directory containing questions.json"
@@ -80,7 +101,7 @@ providers.gradleProperty("prawkoCatalogDir").orNull?.let { path ->
     val stageCatalogAssets by tasks.registering(Sync::class) {
         into(catalogAssets)
         from(catalogDir) {
-            include("questions.json", "media/**")
+            include("questions.json")
             into("catalog")
         }
         includeEmptyDirs = false

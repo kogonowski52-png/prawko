@@ -23,6 +23,7 @@ import pl.prawko.app.data.importing.CatalogQuestion
 import pl.prawko.app.data.importing.CatalogTranslation
 import pl.prawko.app.data.local.DatasetSource
 import pl.prawko.app.data.local.MIGRATION_1_2
+import pl.prawko.app.data.local.MIGRATION_2_3
 import pl.prawko.app.data.local.PrawkoDatabase
 import pl.prawko.app.data.local.installCatalog
 import pl.prawko.app.domain.QuestionAvailability
@@ -97,7 +98,7 @@ class RoomQuestionRepositoryTest {
         try {
             withContext(Dispatchers.IO) { createLegacyDatabase(name) }
             val migrated = Room.databaseBuilder(appContext, PrawkoDatabase::class.java, name)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
             try {
                 val dao = migrated.questionDao()

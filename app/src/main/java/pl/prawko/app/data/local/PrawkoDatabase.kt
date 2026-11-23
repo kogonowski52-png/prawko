@@ -11,10 +11,16 @@ import androidx.room.RoomDatabase
         QuestionCategoryEntity::class,
         QuestionTranslationEntity::class,
         QuestionMediaEntity::class,
+        StudyAnswerEntity::class,
+        StudyFavoriteEntity::class,
+        ExamAttemptEntity::class,
+        ExamAttemptQuestionEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 internal abstract class PrawkoDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
+    abstract fun studyProgressDao(): StudyProgressDao
+    abstract fun examAttemptDao(): ExamAttemptDao
 }

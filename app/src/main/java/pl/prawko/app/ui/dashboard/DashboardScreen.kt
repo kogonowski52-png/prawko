@@ -57,6 +57,7 @@ fun DashboardScreen(
     availability: QuestionAvailability,
     onExam: () -> Unit,
     onStudy: () -> Unit,
+    onProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -91,17 +92,18 @@ fun DashboardScreen(
             OutlinedCard(onClick = onStudy, modifier = Modifier.fillMaxWidth()) {
                 DashboardRow(
                     icon = PrawkoSymbol.BOOK,
-                    title = "Nauka działami",
-                    description = "Ćwicz pytania według tematów.",
+                    title = "Nauka pytań",
+                    description = "Wybierz rodzaj pytań i wracaj do błędów.",
                     hasAction = true,
                 )
             }
             Spacer(Modifier.height(10.dp))
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            OutlinedCard(onClick = onProgress, modifier = Modifier.fillMaxWidth()) {
                 DashboardRow(
                     icon = PrawkoSymbol.PROGRESS,
                     title = "Twój postęp",
-                    description = "Tu zobaczysz postęp po pierwszej sesji nauki.",
+                    description = "Statystyki odpowiedzi i historia egzaminów.",
+                    hasAction = true,
                 )
             }
         }
@@ -184,7 +186,7 @@ private fun ExamCard(availability: QuestionAvailability, onClick: () -> Unit) {
                 Text(
                     text = when (availability) {
                         QuestionAvailability.UNAVAILABLE -> "Baza pytań jest jeszcze niedostępna."
-                        QuestionAvailability.AVAILABLE -> "Sprawdź dostępność egzaminu na kategorię B."
+                        QuestionAvailability.AVAILABLE -> "32 pytania w formacie egzaminu państwowego."
                     },
                     modifier = textModifier,
                     style = MaterialTheme.typography.bodyMedium,
@@ -307,7 +309,7 @@ private fun DashboardRow(
 private fun DashboardLightPreview() {
     PrawkoTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            DashboardScreen(QuestionAvailability.UNAVAILABLE, onExam = {}, onStudy = {})
+            DashboardScreen(QuestionAvailability.UNAVAILABLE, onExam = {}, onStudy = {}, onProgress = {})
         }
     }
 }
@@ -317,7 +319,7 @@ private fun DashboardLightPreview() {
 private fun DashboardDarkPreview() {
     PrawkoTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
-            DashboardScreen(QuestionAvailability.UNAVAILABLE, onExam = {}, onStudy = {})
+            DashboardScreen(QuestionAvailability.UNAVAILABLE, onExam = {}, onStudy = {}, onProgress = {})
         }
     }
 }

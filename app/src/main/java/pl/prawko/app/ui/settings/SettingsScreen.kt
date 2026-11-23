@@ -37,6 +37,7 @@ import pl.prawko.app.ui.components.PrawkoSymbol
 fun SettingsScreen(
     appearance: Appearance,
     onAppearanceChange: (Appearance) -> Unit,
+    onMediaPacks: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -77,6 +78,27 @@ fun SettingsScreen(
                         selected = appearance == Appearance.DARK,
                         onSelect = { onAppearanceChange(Appearance.DARK) },
                     )
+                }
+            }
+            Spacer(Modifier.height(24.dp))
+            PrawkoSectionLabel("Multimedia")
+            Spacer(Modifier.height(10.dp))
+            OutlinedCard(onClick = onMediaPacks, modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    PrawkoIcon(PrawkoSymbol.ARCHIVE)
+                    Column(Modifier.weight(1f)) {
+                        Text("Paczki multimediów", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "Dodaj zdjęcia i filmy z lokalnej paczki ZIP.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    PrawkoIcon(PrawkoSymbol.CHEVRON_RIGHT)
                 }
             }
             Spacer(Modifier.height(24.dp))

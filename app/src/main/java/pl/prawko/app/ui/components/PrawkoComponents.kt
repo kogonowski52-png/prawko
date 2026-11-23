@@ -61,9 +61,11 @@ fun PrawkoPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     symbol: PrawkoSymbol? = PrawkoSymbol.ARROW_RIGHT,
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.heightIn(min = 54.dp),
         shape = MaterialTheme.shapes.medium,
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),

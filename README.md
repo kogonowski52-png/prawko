@@ -21,11 +21,13 @@ Niezależna polskojęzyczna aplikacja na Androida do nauki teorii i rozwiązywan
 - Egzamin powinien odwzorowywać obowiązujące w chwili publikacji zasady, które trzeba zweryfikować z aktualnym prawem.
 - Build i testy uznajemy za zakończone dopiero po rzeczywistym uruchomieniu.
 
-## Pierwszy etap
+## Nauka i egzamin
 
-Aplikacja uruchamia polski onboarding, pulpit kategorii B, wybór trybu i ustawienia motywu. DataStore zapamiętuje ukończenie onboardingu oraz motyw jasny, ciemny lub zgodny z systemem. Interfejs działa offline.
+Nauka kategorii B oferuje kolejność losową lub według identyfikatorów, filtry typu i punktacji oraz serie z ulubionych pytań lub ostatnich błędów. Po sprawdzeniu odpowiedzi użytkownik widzi poprawny wybór, a Room zapisuje postęp dla wersji katalogu.
 
-Room przygotowuje lokalny schemat pytań i wersji bazy. Standardowa kompilacja startuje z pustą bazą. Opcjonalnie można dołączyć zweryfikowany katalog z importera i zasilić nim lokalną bazę Room. Rozwiązywanie pytań, punktacja egzaminu, zapis postępu i odtwarzanie multimediów należą do kolejnych etapów. Instrukcje przygotowania katalogu, sprawdzania raportu i dołączania danych opisuje [dokumentacja importu katalogu](docs/import-katalog-072026.md).
+Egzamin próbny losuje 32 różne pytania w sześciu koszykach punktowych. Przebieg i zegar są odtwarzane z Room po powrocie do próby. Postęp pokazuje statystyki nauki i historię egzaminów. Z wyniku można przejść do powtórki błędów z tej samej wersji katalogu. [Zasady egzaminu opisane w etapie 2](docs/etap-2-nauka-egzamin.md).
+
+Standardowa kompilacja wyświetla stan braku danych, dopóki nie udostępnisz zweryfikowanego katalogu. APK może zawierać tekst katalogu. Zdjęcia i filmy instaluje się osobno przez **Ustawienia → Paczki multimediów**. [Instrukcja importu katalogu i przygotowania mediów](docs/import-katalog-072026.md).
 
 ## Uruchomienie
 
@@ -48,7 +50,15 @@ Plik APK znajdziesz w `app/build/outputs/apk/debug/app-debug.apk`. Po podłącze
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-Testy jednostkowe obejmują model pytań, trwałość preferencji i odczyt pakietu katalogu. Testy instrumentowane sprawdzają nawigację po onboardingu i trybach, wybór motywu oraz dostępność pytań w Room.
+### Demonstracja bez katalogu
+
+```sh
+./gradlew :app:installDebug -PprawkoDemo=true
+```
+
+Wariant **Prawko DEMO** ma osobny identyfikator `pl.prawko.app.demo`, lokalną bazę i stałe oznaczenie na ekranach. Jego syntetyczne pytania ćwiczą obsługę nauki i 32-pytaniowego egzaminu. Flaga działa dla typu kompilacji debug. Użyj osobnego wywołania Gradle do kompilacji z oficjalnym katalogiem.
+
+Testy JVM obejmują limity czasu, koszyki, wznowienie, cały przebieg egzaminu z kontrolowanym zegarem oraz filtrowanie nauki. Testy instrumentowane obejmują migrację Room, przejście przez ekrany, zapis postępu i lokalne odtwarzanie syntetycznego MP4. Testy narzędzi uruchomisz przez `python3 -m unittest discover -s tools/tests -v`.
 
 ## Struktura
 

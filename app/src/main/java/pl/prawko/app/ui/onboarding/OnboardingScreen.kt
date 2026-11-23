@@ -81,7 +81,7 @@ fun OnboardingScreen(onComplete: () -> Unit, modifier: Modifier = Modifier) {
                         modifier = Modifier.semantics { heading() },
                     )
                     Text(
-                        text = "Nauka według działów i egzamin próbny będą dostępne po dodaniu zweryfikowanej bazy pytań.",
+                        text = "Wybierz naukę pytań lub egzamin próbny. Odpowiedzi i wyniki zapisują się na tym urządzeniu.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

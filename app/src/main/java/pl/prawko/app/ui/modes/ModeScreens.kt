@@ -2,7 +2,6 @@ package pl.prawko.app.ui.modes
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -30,22 +28,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import pl.prawko.app.domain.QuestionAvailability
 import pl.prawko.app.ui.components.PrawkoIcon
-import pl.prawko.app.ui.components.PrawkoPrimaryButton
 import pl.prawko.app.ui.components.PrawkoSymbol
-import pl.prawko.app.ui.navigation.StudyMode
 import pl.prawko.app.ui.theme.PrawkoPalette
 
 @Composable
@@ -72,7 +62,7 @@ fun ModeSelectionScreen(
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             ModeCard(
                 title = "Nauka",
-                description = "Pytania uporządkowane według działów. Pracujesz we własnym tempie.",
+                description = "Wybierz rodzaj pytań, ucz się po kolei lub losowo i powtarzaj błędy.",
                 icon = PrawkoSymbol.BOOK,
                 onClick = onStudy,
             )
@@ -84,72 +74,6 @@ fun ModeSelectionScreen(
                 featured = true,
             )
         }
-    }
-}
-
-@Composable
-fun QuestionAvailabilityScreen(
-    mode: StudyMode,
-    availability: QuestionAvailability,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val modeTitle = when (mode) {
-        StudyMode.STUDY -> "Nauka"
-        StudyMode.EXAM -> "Egzamin próbny"
-    }
-    val unavailable = availability == QuestionAvailability.UNAVAILABLE
-    val title = if (unavailable) "Brak bazy pytań" else "Baza pytań jest dostępna"
-    val description = if (unavailable) {
-        when (mode) {
-            StudyMode.STUDY -> "Do rozpoczęcia nauki potrzebna jest zweryfikowana baza pytań dla kategorii B."
-            StudyMode.EXAM -> "Do uruchomienia egzaminu próbnego potrzebna jest zweryfikowana baza pytań dla kategorii B."
-        }
-    } else {
-        "Rozwiązywanie pytań będzie dostępne w kolejnej wersji aplikacji."
-    }
-
-    ModePage(onBack = onBack, modifier = modifier) {
-        Text(
-            text = modeTitle,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.semantics { heading() },
-        )
-
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                QuestionIllustration(unavailable = unavailable)
-                Column(
-                    modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.semantics { heading() },
-                    )
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        PrawkoPrimaryButton(
-            text = "Wróć do poprzedniego ekranu",
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth(),
-            symbol = PrawkoSymbol.ARROW_LEFT,
-        )
     }
 }
 
@@ -240,46 +164,6 @@ private fun ModeCard(
                 Text(title, style = MaterialTheme.typography.headlineSmall)
                 Text(description, style = MaterialTheme.typography.bodyMedium, color = detail)
             }
-        }
-    }
-}
-
-@Composable
-private fun QuestionIllustration(unavailable: Boolean) {
-    val palette = MaterialTheme.colorScheme
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(132.dp)
-            .background(palette.secondaryContainer, RoundedCornerShape(18.dp)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Canvas(Modifier.size(width = 206.dp, height = 124.dp)) {
-            val center = Offset(size.width / 2, size.height / 2)
-            val orbitColor = palette.onSecondaryContainer.copy(alpha = 0.30f)
-            val ring = Stroke(
-                width = 1.dp.toPx(),
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(), 4.dp.toPx())),
-            )
-            drawCircle(orbitColor, radius = 52.dp.toPx(), center = center, style = ring)
-            drawCircle(orbitColor, radius = 2.dp.toPx(), center = center + Offset(-68.dp.toPx(), -24.dp.toPx()))
-            drawCircle(orbitColor, radius = 3.dp.toPx(), center = center + Offset(65.dp.toPx(), 27.dp.toPx()))
-            drawRoundRect(
-                color = palette.primary.copy(alpha = 0.16f),
-                topLeft = center + Offset(-27.dp.toPx(), -30.dp.toPx()),
-                size = Size(63.dp.toPx(), 67.dp.toPx()),
-                cornerRadius = CornerRadius(17.dp.toPx()),
-            )
-        }
-        Box(
-            modifier = Modifier.size(64.dp).background(palette.surface, RoundedCornerShape(17.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
-            PrawkoIcon(
-                symbol = if (unavailable) PrawkoSymbol.ARCHIVE else PrawkoSymbol.CHECK,
-                tint = palette.primary,
-                modifier = Modifier.size(28.dp),
-            )
         }
     }
 }
