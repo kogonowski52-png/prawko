@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +45,7 @@ fun ModeSelectionScreen(
     modifier: Modifier = Modifier,
 ) {
     ModePage(onBack = onBack, modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = "Kategoria B",
                 style = MaterialTheme.typography.labelLarge,
@@ -54,7 +53,7 @@ fun ModeSelectionScreen(
             )
             Text(
                 text = "Wybierz tryb",
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.semantics { heading() },
             )
         }
@@ -90,7 +89,7 @@ private fun ModePage(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(22.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             IconButton(
                 onClick = onBack,
@@ -132,38 +131,28 @@ private fun ModeCard(
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().semantics { role = Role.Button },
-        shape = RoundedCornerShape(26.dp),
+        shape = MaterialTheme.shapes.large,
         color = background,
         contentColor = content,
         border = BorderStroke(1.dp, borderColor),
         interactionSource = interactionSource,
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
+                modifier = Modifier.size(44.dp).background(accentBackground, MaterialTheme.shapes.medium),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier.size(52.dp).background(accentBackground, RoundedCornerShape(16.dp)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    PrawkoIcon(icon, modifier = Modifier.size(26.dp), tint = accent)
-                }
-                Box(
-                    modifier = Modifier.size(36.dp).background(accentBackground, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    PrawkoIcon(PrawkoSymbol.ARROW_RIGHT, modifier = Modifier.size(18.dp), tint = accent)
-                }
+                PrawkoIcon(icon, modifier = Modifier.size(22.dp), tint = accent)
             }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = MaterialTheme.typography.headlineSmall)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge)
                 Text(description, style = MaterialTheme.typography.bodyMedium, color = detail)
             }
+            PrawkoIcon(PrawkoSymbol.CHEVRON_RIGHT, modifier = Modifier.size(18.dp), tint = detail)
         }
     }
 }

@@ -1,18 +1,16 @@
 package pl.prawko.app.ui.dashboard
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,15 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -69,13 +59,13 @@ fun DashboardScreen(
                 .padding(horizontal = 20.dp, vertical = 20.dp),
         ) {
             DashboardHeader()
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(22.dp))
             Text(
                 text = "Przygotowanie do egzaminu",
                 modifier = Modifier
                     .widthIn(max = 420.dp)
                     .semantics { heading() },
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(8.dp))
@@ -84,7 +74,7 @@ fun DashboardScreen(
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
             ExamCard(availability = availability, onClick = onExam)
             Spacer(Modifier.height(24.dp))
             PrawkoSectionLabel("Nauka i postęp")
@@ -94,7 +84,6 @@ fun DashboardScreen(
                     icon = PrawkoSymbol.BOOK,
                     title = "Nauka pytań",
                     description = "Wybierz rodzaj pytań i wracaj do błędów.",
-                    hasAction = true,
                 )
             }
             Spacer(Modifier.height(10.dp))
@@ -103,7 +92,6 @@ fun DashboardScreen(
                     icon = PrawkoSymbol.PROGRESS,
                     title = "Twój postęp",
                     description = "Statystyki odpowiedzi i historia egzaminów.",
-                    hasAction = true,
                 )
             }
         }
@@ -145,122 +133,54 @@ private fun DashboardHeader() {
 @Composable
 private fun ExamCard(availability: QuestionAvailability, onClick: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(28.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
         color = PrawkoPalette.Hero,
+        contentColor = Color.White,
         border = BorderStroke(1.dp, PrawkoPalette.HeroRaised),
     ) {
-        BoxWithConstraints(Modifier.fillMaxWidth().clipToBounds()) {
-            val showArt = maxWidth >= 280.dp && LocalDensity.current.fontScale <= 1.25f
-            if (showArt) {
-                RouteArtwork(
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .width(136.dp)
-                        .aspectRatio(0.8f),
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
-                    modifier = Modifier.size(40.dp).background(PrawkoPalette.HeroRaised, CircleShape),
+                    modifier = Modifier.size(44.dp)
+                        .background(PrawkoPalette.HeroRaised, MaterialTheme.shapes.medium),
                     contentAlignment = Alignment.Center,
                 ) {
-                    PrawkoIcon(
-                        symbol = PrawkoSymbol.EXAM,
-                        modifier = Modifier.size(21.dp),
-                        tint = PrawkoPalette.Mint,
+                    PrawkoIcon(PrawkoSymbol.EXAM, Modifier.size(22.dp), tint = PrawkoPalette.Mint)
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "Egzamin próbny",
+                        Modifier.semantics { heading() },
+                        style = MaterialTheme.typography.headlineSmall,
+                    )
+                    Text(
+                        when (availability) {
+                            QuestionAvailability.UNAVAILABLE -> "Baza pytań jest jeszcze niedostępna."
+                            QuestionAvailability.AVAILABLE -> "32 pytania · do 25 minut"
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = PrawkoPalette.HeroMuted,
                     )
                 }
-                Spacer(Modifier.height(12.dp))
-                val textModifier = Modifier.padding(end = if (showArt) 94.dp else 0.dp)
-                Text(
-                    text = "Egzamin próbny",
-                    modifier = textModifier.semantics { heading() },
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = Color.White,
-                )
-                Spacer(Modifier.height(5.dp))
-                Text(
-                    text = when (availability) {
-                        QuestionAvailability.UNAVAILABLE -> "Baza pytań jest jeszcze niedostępna."
-                        QuestionAvailability.AVAILABLE -> "32 pytania w formacie egzaminu państwowego."
-                    },
-                    modifier = textModifier,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PrawkoPalette.HeroMuted,
-                )
-                Spacer(Modifier.height(18.dp))
-                Button(
-                    onClick = onClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrawkoPalette.Mint,
-                        contentColor = PrawkoPalette.Hero,
-                    ),
-                ) {
-                    Text("Zobacz egzamin")
-                    Spacer(Modifier.width(8.dp))
-                    PrawkoIcon(symbol = PrawkoSymbol.ARROW_RIGHT, modifier = Modifier.size(17.dp))
-                }
+            }
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrawkoPalette.Mint,
+                    contentColor = PrawkoPalette.Hero,
+                ),
+            ) {
+                Text("Zobacz egzamin", style = MaterialTheme.typography.labelLarge)
+                Spacer(Modifier.width(8.dp))
+                PrawkoIcon(PrawkoSymbol.ARROW_RIGHT, Modifier.size(17.dp))
             }
         }
-    }
-}
-
-@Composable
-private fun RouteArtwork(modifier: Modifier) {
-    Canvas(modifier) {
-        val width = size.width
-        val height = size.height
-        val point = Offset(width * 0.53f, height * 0.54f)
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(PrawkoPalette.Mint.copy(alpha = 0.11f), Color.Transparent),
-                center = point,
-                radius = width * 0.58f,
-            ),
-            radius = width * 0.58f,
-            center = point,
-        )
-        repeat(5) { column ->
-            repeat(7) { row ->
-                drawCircle(
-                    color = PrawkoPalette.HeroMuted.copy(alpha = 0.19f),
-                    radius = 1.dp.toPx(),
-                    center = Offset(width * (0.24f + column * 0.15f), height * (0.08f + row * 0.13f)),
-                )
-            }
-        }
-        val road = Path().apply {
-            moveTo(width * 1.1f, height * 0.08f)
-            cubicTo(width * 0.42f, height * 0.03f, width * 0.24f, height * 0.29f, width * 0.57f, height * 0.42f)
-            cubicTo(width * 1.01f, height * 0.59f, width * 0.99f, height * 0.72f, width * 0.63f, height * 0.81f)
-            cubicTo(width * 0.44f, height * 0.86f, width * 0.31f, height * 0.92f, width * 0.33f, height)
-        }
-        drawPath(
-            path = road,
-            color = PrawkoPalette.HeroMuted.copy(alpha = 0.22f),
-            style = Stroke(23.dp.toPx(), cap = StrokeCap.Round),
-        )
-        drawPath(
-            path = road,
-            color = PrawkoPalette.HeroRaised,
-            style = Stroke(21.dp.toPx(), cap = StrokeCap.Round),
-        )
-        drawPath(
-            path = road,
-            color = PrawkoPalette.HeroMuted.copy(alpha = 0.55f),
-            style = Stroke(
-                width = 1.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5.dp.toPx(), 6.dp.toPx())),
-            ),
-        )
-        val marker = Offset(width * 0.69f, height * 0.79f)
-        drawCircle(PrawkoPalette.Hero, radius = 8.dp.toPx(), center = marker)
-        drawCircle(PrawkoPalette.Mint, radius = 5.dp.toPx(), center = marker)
     }
 }
 
@@ -269,7 +189,6 @@ private fun DashboardRow(
     icon: PrawkoSymbol,
     title: String,
     description: String,
-    hasAction: Boolean = false,
 ) {
     val colors = MaterialTheme.colorScheme
     Row(
@@ -281,7 +200,7 @@ private fun DashboardRow(
             modifier = Modifier
                 .size(42.dp)
                 .background(
-                    color = if (hasAction) colors.secondaryContainer else colors.surfaceVariant,
+                    color = colors.secondaryContainer,
                     shape = RoundedCornerShape(13.dp),
                 ),
             contentAlignment = Alignment.Center,
@@ -289,7 +208,7 @@ private fun DashboardRow(
             PrawkoIcon(
                 symbol = icon,
                 modifier = Modifier.size(21.dp),
-                tint = if (hasAction) colors.onSecondaryContainer else colors.onSurfaceVariant,
+                tint = colors.onSecondaryContainer,
             )
         }
         Column(Modifier.weight(1f)) {
@@ -300,7 +219,7 @@ private fun DashboardRow(
                 color = colors.onSurfaceVariant,
             )
         }
-        if (hasAction) PrawkoIcon(symbol = PrawkoSymbol.CHEVRON_RIGHT, modifier = Modifier.size(18.dp))
+        PrawkoIcon(symbol = PrawkoSymbol.CHEVRON_RIGHT, modifier = Modifier.size(18.dp))
     }
 }
 

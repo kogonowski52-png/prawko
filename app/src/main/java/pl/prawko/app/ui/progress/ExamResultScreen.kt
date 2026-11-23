@@ -3,10 +3,13 @@ package pl.prawko.app.ui.progress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -24,6 +27,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,13 +80,11 @@ fun ExamResultScreen(
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         LazyColumn(
             modifier = Modifier.widthIn(max = 620.dp).fillMaxWidth(),
-            contentPadding = PaddingValues(start = 20.dp, top = 16.dp, end = 20.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(start = 20.dp, top = 12.dp, end = 20.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(key = "header") {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ProgressHeader("Wynik egzaminu", isDemo, onBack)
-                }
+                Column { ProgressHeader("Wynik egzaminu", isDemo, onBack) }
             }
             when (val state = review) {
                 ProgressLoad.Loading -> item { ProgressLoading() }
@@ -180,29 +182,29 @@ private fun ResultSummary(review: ExamReview) {
             shape = MaterialTheme.shapes.extraLarge,
         ) {
             Column(
-                modifier = Modifier.padding(22.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    "Kategoria ${session.category.name} · $date",
-                    color = PrawkoPalette.HeroMuted,
-                    style = MaterialTheme.typography.labelLarge,
-                )
                 ResultBadge(
                     label = session.outcomeLabel(),
                     color = if (session.passed) PrawkoPalette.Mint else PrawkoPalette.HeroRaised,
                     textColor = if (session.passed) PrawkoPalette.Hero else Color.White,
                 )
                 if (review.isScored) {
-                    Text("${session.score} / ${review.maxScore} pkt", style = MaterialTheme.typography.displaySmall)
+                    Text(
+                        "${session.score} / ${review.maxScore} pkt",
+                        style = MaterialTheme.typography.displaySmall.copy(fontFeatureSettings = "tnum"),
+                    )
                     val progress = session.score.toFloat() / review.maxScore.coerceAtLeast(1)
                     LinearProgressIndicator(
                         progress = { progress },
-                        modifier = Modifier.fillMaxWidth().semantics {
+                        modifier = Modifier.fillMaxWidth().height(4.dp).semantics {
                             stateDescription = "${session.score} z ${review.maxScore} punktów"
                         },
                         color = PrawkoPalette.Mint,
                         trackColor = PrawkoPalette.HeroRaised,
+                        gapSize = 0.dp,
+                        drawStopIndicator = {},
                     )
                     Text(
                         "Próg zaliczenia ${ExamRules.PASS_SCORE} pkt",
@@ -220,13 +222,23 @@ private fun ResultSummary(review: ExamReview) {
                 if (reason != null) {
                     Text(reason, color = PrawkoPalette.HeroMuted, style = MaterialTheme.typography.bodyMedium)
                 }
+                Text(
+                    "Kategoria ${session.category.name} · $date",
+                    color = PrawkoPalette.HeroMuted,
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
         }
         OutlinedCard(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large) {
-            Row(Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                AnswerCount(review.correctCount, "Poprawne", Modifier.weight(1f))
-                AnswerCount(review.incorrectCount, "Błędne", Modifier.weight(1f))
-                AnswerCount(review.noAnswerCount, "Bez odpowiedzi", Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AnswerCount(review.correctCount, "Poprawne", Modifier.weight(1f).padding(horizontal = 6.dp))
+                VerticalDivider(Modifier.fillMaxHeight(), color = MaterialTheme.colorScheme.outlineVariant)
+                AnswerCount(review.incorrectCount, "Błędne", Modifier.weight(1f).padding(horizontal = 6.dp))
+                VerticalDivider(Modifier.fillMaxHeight(), color = MaterialTheme.colorScheme.outlineVariant)
+                AnswerCount(review.noAnswerCount, "Bez odpowiedzi", Modifier.weight(1f).padding(horizontal = 6.dp))
             }
         }
     }
@@ -287,13 +299,13 @@ private fun AnswerReviewCard(answer: ReviewedAnswer, isScored: Boolean) {
                 style = MaterialTheme.typography.bodyLarge,
             )
             HorizontalDivider(color = colors.outlineVariant)
-            Text(
-                text = "Twój wybór · ${answer.chosen?.let { choiceLabel(answer.question, it) } ?: "Brak"}",
-                style = MaterialTheme.typography.bodyMedium,
+            ReviewAnswer(
+                label = "Twój wybór",
+                value = answer.chosen?.let { choiceLabel(answer.question, it) } ?: "Brak odpowiedzi",
             )
-            Text(
-                text = "Poprawna odpowiedź · ${choiceLabel(answer.question, answer.correct)}",
-                style = MaterialTheme.typography.bodyMedium,
+            ReviewAnswer(
+                label = "Poprawna odpowiedź",
+                value = choiceLabel(answer.question, answer.correct),
                 color = colors.primary,
             )
             if (isScored) {
@@ -304,6 +316,14 @@ private fun AnswerReviewCard(answer: ReviewedAnswer, isScored: Boolean) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ReviewAnswer(label: String, value: String, color: Color = MaterialTheme.colorScheme.onSurface) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = color)
     }
 }
 

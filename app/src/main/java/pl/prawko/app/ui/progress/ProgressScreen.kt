@@ -3,10 +3,13 @@ package pl.prawko.app.ui.progress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -44,6 +47,7 @@ import pl.prawko.app.domain.exam.ExamHistoryItem
 import pl.prawko.app.domain.exam.ExamRepository
 import pl.prawko.app.domain.exam.ExamRules
 import pl.prawko.app.ui.components.PrawkoIcon
+import pl.prawko.app.ui.components.PrawkoPrimaryButton
 import pl.prawko.app.ui.components.PrawkoSectionLabel
 import pl.prawko.app.ui.components.PrawkoSymbol
 import pl.prawko.app.ui.theme.PrawkoPalette
@@ -78,8 +82,8 @@ fun ProgressScreen(
         LazyColumn(
             modifier = Modifier.widthIn(max = 620.dp).fillMaxWidth(),
             state = if (showHistory) historyScroll else studyScroll,
-            contentPadding = PaddingValues(start = 20.dp, top = 16.dp, end = 20.dp, bottom = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(start = 20.dp, top = 12.dp, end = 20.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(key = "header") {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -166,26 +170,27 @@ private fun StudyStatistics(totals: StudyTotals, onStudy: () -> Unit) {
             contentColor = PrawkoPalette.Mint,
             shape = MaterialTheme.shapes.extraLarge,
         ) {
-            Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PrawkoIcon(PrawkoSymbol.PROGRESS, tint = PrawkoPalette.Mint)
-                    Text("Przerobione pytania", style = MaterialTheme.typography.titleMedium, color = PrawkoPalette.HeroMuted)
-                }
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Przerobione pytania", style = MaterialTheme.typography.titleMedium, color = PrawkoPalette.HeroMuted)
                 val available = totals.types.sumOf { it.total }
-                Text("${totals.answeredQuestions} z $available", style = MaterialTheme.typography.headlineLarge)
+                Text("${totals.answeredQuestions} z $available", style = MaterialTheme.typography.headlineLarge.copy(fontFeatureSettings = "tnum"))
                 LinearProgressIndicator(
                     progress = { totals.answeredQuestions.toFloat() / available },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(4.dp).semantics {
+                        stateDescription = "${totals.answeredQuestions} z $available pytań"
+                    },
                     color = PrawkoPalette.Mint,
                     trackColor = PrawkoPalette.HeroRaised,
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
                 )
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StudyMetric(totals.accuracyPercentage?.let { "$it%" } ?: "—", "Skuteczność", Modifier.weight(1f))
             StudyMetric(totals.attempts.toString(), "Odpowiedzi", Modifier.weight(1f))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StudyMetric(totals.mistakes.toString(), "Do powtórki", Modifier.weight(1f))
             StudyMetric(totals.favorites.toString(), "Ulubione", Modifier.weight(1f))
         }
@@ -194,23 +199,31 @@ private fun StudyStatistics(totals: StudyTotals, onStudy: () -> Unit) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 totals.types.forEach { group ->
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(group.type.progressLabel, style = MaterialTheme.typography.titleSmall)
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(group.type.progressLabel, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                "${group.answered} / ${group.total}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                         LinearProgressIndicator(
                             progress = { if (group.total == 0) 0f else group.answered.toFloat() / group.total },
                             modifier = Modifier.fillMaxWidth().semantics {
                                 stateDescription = "${group.answered} z ${group.total} pytań"
-                            },
-                        )
-                        Text(
-                            "${group.answered} z ${group.total} pytań",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            }.height(4.dp),
+                            gapSize = 0.dp,
+                            drawStopIndicator = {},
                         )
                     }
                 }
             }
         }
-        pl.prawko.app.ui.components.PrawkoPrimaryButton(
+        PrawkoPrimaryButton(
             text = if (totals.attempts == 0L) "Rozpocznij naukę" else "Wróć do nauki",
             onClick = onStudy,
             modifier = Modifier.fillMaxWidth(),
@@ -221,7 +234,7 @@ private fun StudyStatistics(totals: StudyTotals, onStudy: () -> Unit) {
 
 @Composable
 private fun StudyMetric(value: String, label: String, modifier: Modifier = Modifier) {
-    OutlinedCard(modifier, shape = MaterialTheme.shapes.medium) {
+    OutlinedCard(modifier.fillMaxHeight(), shape = MaterialTheme.shapes.medium) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(value, style = MaterialTheme.typography.titleLarge)
             Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

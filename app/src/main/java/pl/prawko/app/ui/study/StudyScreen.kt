@@ -1,7 +1,6 @@
 package pl.prawko.app.ui.study
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -53,7 +51,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -70,9 +67,8 @@ import pl.prawko.app.domain.MediaRepository
 import pl.prawko.app.domain.Question
 import pl.prawko.app.domain.QuestionType
 import pl.prawko.app.domain.StudyProgressRepository
-import pl.prawko.app.domain.choices
 import pl.prawko.app.domain.correctChoice
-import pl.prawko.app.domain.textFor
+import pl.prawko.app.ui.components.AnswerChoices
 import pl.prawko.app.ui.components.PrawkoIcon
 import pl.prawko.app.ui.components.PrawkoSectionLabel
 import pl.prawko.app.ui.components.PrawkoSymbol
@@ -160,7 +156,6 @@ private fun StudyContent(
     when {
         series != null && series.completed -> StudyComplete(
             series = series,
-            isDemo = isDemo,
             onBack = model::clearSeries,
             onStats = onStats,
             modifier = modifier,
@@ -172,7 +167,6 @@ private fun StudyContent(
                     series = series,
                     state = state,
                     mediaRepository = mediaRepository,
-                    isDemo = isDemo,
                     onBack = closeSeries,
                     onSelect = model::select,
                     onCheck = model::checkAnswer,
@@ -240,7 +234,14 @@ private fun StudySetup(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        StudyHeader(if (reviewExam) "Powtórka błędów" else "Nauka pytań", onBack)
+        StudyHeader(
+            title = when {
+                reviewExam -> "Powtórka błędów"
+                isDemo -> "Nauka DEMO"
+                else -> "Nauka pytań"
+            },
+            onBack = onBack,
+        )
         Surface(
             color = PrawkoPalette.Hero,
             contentColor = Color.White,
@@ -250,7 +251,6 @@ private fun StudySetup(
                 modifier = Modifier.fillMaxWidth().padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (isDemo) DemoStudyChip()
                 Text(
                     text = "Przerobiono $done z ${pool.size} pytań",
                     style = MaterialTheme.typography.headlineSmall,
@@ -358,7 +358,6 @@ private fun StudyQuestion(
     series: StudySeries,
     state: StudyState,
     mediaRepository: MediaRepository,
-    isDemo: Boolean,
     onBack: () -> Unit,
     onSelect: (AnswerChoice) -> Unit,
     onCheck: () -> Unit,
@@ -373,8 +372,8 @@ private fun StudyQuestion(
 
     Column(modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             StudyHeader(
                 title = "Pytanie ${series.index + 1} z ${series.questionIndices.size}",
@@ -391,37 +390,38 @@ private fun StudyQuestion(
             val answered = series.index + if (series.checked) 1 else 0
             LinearProgressIndicator(
                 progress = { answered.toFloat() / series.questionIndices.size },
-                modifier = Modifier.fillMaxWidth().height(5.dp).clip(CircleShape),
+                modifier = Modifier.fillMaxWidth().height(3.dp).clip(CircleShape).semantics {
+                    stateDescription = "Rozwiązano $answered z ${series.questionIndices.size} pytań w serii"
+                },
+                gapSize = 0.dp,
+                drawStopIndicator = {},
             )
         }
         Column(
             modifier = Modifier.weight(1f).verticalScroll(scroll).padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            StudyQuestionTags(question, isDemo)
-            Text(
-                text = question.prompt,
-                modifier = Modifier.semantics { heading() },
-                style = MaterialTheme.typography.headlineSmall,
-            )
-            QuestionMediaContent(question = question, repository = mediaRepository, controls = true)
-            Column(
-                modifier = Modifier.selectableGroup(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                question.answers.choices.forEach { choice ->
-                    StudyAnswerOption(
-                        choice = choice,
-                        text = question.answers.textFor(choice),
-                        showLabel = question.type == QuestionType.SPECIALIST,
-                        selected = series.selected == choice,
-                        enabled = series.attemptId == null,
-                        checked = series.checked,
-                        isCorrect = choice == correct,
-                        onSelect = { onSelect(choice) },
-                    )
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                val type = if (question.type == QuestionType.BASIC) "Podstawowe" else "Specjalistyczne"
+                Text(
+                    "$type · ${question.points} pkt",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = question.prompt,
+                    modifier = Modifier.semantics { heading() },
+                    style = MaterialTheme.typography.headlineSmall,
+                )
             }
+            QuestionMediaContent(question = question, repository = mediaRepository, controls = true)
+            AnswerChoices(
+                answers = question.answers,
+                selection = series.selected,
+                enabled = series.attemptId == null,
+                checked = series.checked,
+                onSelect = onSelect,
+            )
             if (series.checked) {
                 StudyFeedback(
                     correct = pickedCorrect,
@@ -474,98 +474,6 @@ private fun StudyQuestion(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun StudyQuestionTags(question: Question, isDemo: Boolean) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        if (isDemo) DemoStudyChip()
-        StudyTag(if (question.type == QuestionType.BASIC) "Podstawowe" else "Specjalistyczne")
-        StudyTag("${question.points} pkt")
-    }
-}
-
-@Composable
-private fun StudyTag(label: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        shape = CircleShape,
-    ) {
-        Text(label, Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium)
-    }
-}
-
-@Composable
-private fun DemoStudyChip() {
-    Surface(color = PrawkoPalette.Mint, contentColor = PrawkoPalette.Hero, shape = CircleShape) {
-        Text(
-            "DEMO",
-            Modifier.padding(horizontal = 10.dp, vertical = 5.dp).semantics {
-                contentDescription = "DEMO, pytania testowe"
-            },
-            style = MaterialTheme.typography.labelMedium,
-        )
-    }
-}
-
-@Composable
-private fun StudyAnswerOption(
-    choice: AnswerChoice,
-    text: String,
-    showLabel: Boolean,
-    selected: Boolean,
-    enabled: Boolean,
-    checked: Boolean,
-    isCorrect: Boolean,
-    onSelect: () -> Unit,
-) {
-    val colors = MaterialTheme.colorScheme
-    val correctAnswer = checked && isCorrect
-    val wrongSelected = checked && selected && !isCorrect
-    val (container, foreground, border) = when {
-        correctAnswer -> Triple(colors.primaryContainer, colors.onPrimaryContainer, colors.primary)
-        wrongSelected -> Triple(colors.errorContainer, colors.onErrorContainer, colors.error)
-        selected -> Triple(colors.secondaryContainer, colors.onSecondaryContainer, colors.primary)
-        else -> Triple(colors.surface, colors.onSurface, colors.outlineVariant)
-    }
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        color = container,
-        contentColor = foreground,
-        border = BorderStroke(if (selected || correctAnswer) 2.dp else 1.dp, border),
-    ) {
-        Row(
-            modifier = Modifier
-                .selectable(selected, enabled = enabled, role = Role.RadioButton, onClick = onSelect)
-                .semantics {
-                    if (correctAnswer) stateDescription = "Poprawna odpowiedź"
-                    if (wrongSelected) stateDescription = "Wybrana niepoprawna odpowiedź"
-                }
-                .heightIn(min = 60.dp)
-                .padding(horizontal = 14.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (showLabel) {
-                Box(
-                    modifier = Modifier.size(32.dp).background(colors.surface, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(choice.label, color = colors.onSurface, style = MaterialTheme.typography.labelLarge)
-                }
-            }
-            Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-            if (correctAnswer || (selected && !checked)) {
-                PrawkoIcon(PrawkoSymbol.CHECK, Modifier.size(20.dp))
-            }
-        }
-    }
-}
-
 private val FavoritePath = PathParser().parsePathString(
     "M12 2.8 L14.9 8.7 L21.4 9.6 L16.7 14.2 L17.8 20.7 L12 17.6 L6.2 20.7 L7.3 14.2 L2.6 9.6 L9.1 8.7 Z",
 ).toPath()
@@ -606,15 +514,19 @@ private fun StudyFeedback(correct: Boolean, correctAnswer: String, modifier: Mod
         color = color,
         contentColor = contentColor,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        Row(
+            modifier = Modifier.padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                if (correct) "Dobra odpowiedź" else "Niepoprawna odpowiedź",
-                style = MaterialTheme.typography.titleMedium,
-            )
-            if (!correct) Text("Poprawna odpowiedź to $correctAnswer.", style = MaterialTheme.typography.bodyMedium)
+            PrawkoIcon(if (correct) PrawkoSymbol.CHECK else PrawkoSymbol.CLOSE, Modifier.size(20.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    if (correct) "Dobra odpowiedź" else "Niepoprawna odpowiedź",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                if (!correct) Text("Poprawna odpowiedź to $correctAnswer.", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
@@ -622,7 +534,6 @@ private fun StudyFeedback(correct: Boolean, correctAnswer: String, modifier: Mod
 @Composable
 private fun StudyComplete(
     series: StudySeries,
-    isDemo: Boolean,
     onBack: () -> Unit,
     onStats: () -> Unit,
     modifier: Modifier,
@@ -641,7 +552,6 @@ private fun StudyComplete(
                 modifier = Modifier.fillMaxWidth().padding(22.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (isDemo) DemoStudyChip()
                 Text(
                     "${series.correctCount} z ${series.questionIndices.size}",
                     style = MaterialTheme.typography.displaySmall,

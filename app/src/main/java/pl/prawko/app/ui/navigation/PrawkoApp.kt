@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -19,7 +17,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +42,7 @@ import pl.prawko.app.domain.QuestionRepository
 import pl.prawko.app.domain.StudyProgressRepository
 import pl.prawko.app.domain.exam.ExamRepository
 import pl.prawko.app.ui.PrawkoUiState
+import pl.prawko.app.ui.components.DemoBanner
 import pl.prawko.app.ui.components.PrawkoIcon
 import pl.prawko.app.ui.components.PrawkoSymbol
 import pl.prawko.app.ui.dashboard.DashboardScreen
@@ -109,22 +107,7 @@ internal fun PrawkoApp(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = {
-            if (features.isDemo) {
-                Surface(color = MaterialTheme.colorScheme.tertiaryContainer) {
-                    Box(
-                        Modifier.fillMaxWidth().statusBarsPadding().padding(vertical = 6.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "DEMO · Dane syntetyczne",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        )
-                    }
-                }
-            }
-        },
+        topBar = { if (features.isDemo) DemoBanner() },
         bottomBar = {
             if (preferences?.onboardingCompleted == true && tab != null) {
                 AppNavigationBar(tab, navController::selectTab)

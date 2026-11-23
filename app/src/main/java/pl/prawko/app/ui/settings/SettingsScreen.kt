@@ -1,5 +1,6 @@
 package pl.prawko.app.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,7 +48,7 @@ fun SettingsScreen(
                 .widthIn(max = 720.dp)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 28.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp),
         ) {
             Text(
                 text = "Ustawienia",
@@ -57,7 +59,7 @@ fun SettingsScreen(
             PrawkoSectionLabel("Motyw aplikacji")
             Spacer(Modifier.height(10.dp))
             OutlinedCard(Modifier.fillMaxWidth()) {
-                Column(Modifier.selectableGroup()) {
+                Column(Modifier.selectableGroup().padding(4.dp)) {
                     AppearanceOption(
                         text = "Zgodny z systemem",
                         icon = PrawkoSymbol.DISPLAY,
@@ -89,7 +91,13 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    PrawkoIcon(PrawkoSymbol.ARCHIVE)
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    ) {
+                        PrawkoIcon(PrawkoSymbol.ARCHIVE, Modifier.padding(10.dp).size(20.dp))
+                    }
                     Column(Modifier.weight(1f)) {
                         Text("Paczki multimediów", style = MaterialTheme.typography.titleSmall)
                         Text(
@@ -118,10 +126,15 @@ private fun AppearanceOption(
     selected: Boolean,
     onSelect: () -> Unit,
 ) {
+    val colors = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
+            .background(
+                color = if (selected) colors.secondaryContainer else colors.surface,
+                shape = MaterialTheme.shapes.small,
+            )
             .selectable(selected = selected, onClick = onSelect, role = Role.RadioButton)
             .padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
