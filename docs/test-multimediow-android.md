@@ -4,24 +4,26 @@ Generator tworzy dwa pytania kategorii B oznaczone jako DEMO. Pierwsze używa JP
 
 ## Wygenerowanie plików w PowerShell na Windows 11
 
-Użyj Pythona 3.11 lub nowszego oraz `ffmpeg.exe` z obsługą `libx264` i `aac`. W PowerShell przejdź do lokalnego repozytorium Prawko, pobierz zmiany i uruchom skrypt.
+Użyj Pythona 3.11 lub nowszego oraz `ffmpeg.exe` z obsługą `libx264` i `aac`. Poniższe polecenia działają w PowerShell 5.1. Pobierają aktualny kod z GitHuba do folderu tymczasowego i zapisują gotowe pliki w folderze wskazanym przez `$output`.
 
 ```powershell
-Set-Location 'C:\Prawko\prawko'
-git pull --ff-only
-py -3 --version
-ffmpeg -version
-py -3 .\tools\generate_demo_media.py
-Invoke-Item .\local-data\media-demo
+$tempDir = Join-Path $env:TEMP ('prawko-media-' + [guid]::NewGuid().ToString('N'))
+$zip = "$tempDir.zip"
+Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/kogonowski52-png/prawko/archive/refs/heads/main.zip' -OutFile $zip -ErrorAction Stop
+Expand-Archive -LiteralPath $zip -DestinationPath $tempDir -ErrorAction Stop
+$generator = Join-Path $tempDir 'prawko-main\tools\generate_demo_media.py'
+$output = 'C:\Prawko\prawko\local-data\media-demo'
+py -3 $generator --output-dir $output
+if ($LASTEXITCODE -eq 0) { Invoke-Item -LiteralPath $output }
 ```
 
 Jeżeli FFmpeg znajduje się poza `PATH`, podaj pełną ścieżkę do programu.
 
 ```powershell
-py -3 .\tools\generate_demo_media.py --ffmpeg 'C:\ffmpeg\bin\ffmpeg.exe'
+py -3 $generator --output-dir $output --ffmpeg 'C:\ffmpeg\bin\ffmpeg.exe'
 ```
 
-Przy kolejnym generowaniu wybierz nowy folder, np. poleceniem `py -3 .\tools\generate_demo_media.py --output-dir .\local-data\media-demo-2`. Wersja `DEMO-media-…` zależy od treści katalogu i wygenerowanych mediów.
+Przy kolejnym generowaniu ustaw `$output` na nową ścieżkę, np. `C:\Prawko\prawko\local-data\media-demo-2`, i ponownie wywołaj `py -3 $generator --output-dir $output`. Wersja `DEMO-media-…` zależy od treści katalogu i wygenerowanych mediów.
 
 | Plik lub folder | Zastosowanie |
 | --- | --- |
@@ -33,7 +35,7 @@ Przy kolejnym generowaniu wybierz nowy folder, np. poleceniem `py -3 .\tools\gen
 Wartość SHA-256 paczki ZIP to pierwsze 64 znaki wiersza z nazwą ZIP w `SHA256SUMS`. Możesz ją też obliczyć w PowerShell.
 
 ```powershell
-$pack = Get-ChildItem -LiteralPath .\local-data\media-demo -Filter '*-pack-001.zip' -File
+$pack = Get-ChildItem -LiteralPath $output -Filter '*-pack-001.zip' -File
 (Get-FileHash -LiteralPath $pack.FullName -Algorithm SHA256).Hash
 ```
 

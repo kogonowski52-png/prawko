@@ -81,7 +81,7 @@ Lokalna kompilacja i testy wariantu testowego
 
 ### Test zdjęcia i filmu
 
-Generator syntetycznej paczki do sprawdzenia JPG i MP4 w trybie nauki uruchomisz na Windowsie poleceniem `py -3 .\tools\generate_demo_media.py`. [Test multimediów w Prawko Katalog TEST](docs/test-multimediow-android.md)
+Generator syntetycznej paczki do sprawdzenia JPG i MP4 uruchomisz w PowerShell bez instalowania Gita. [Test multimediów w Prawko Katalog TEST](docs/test-multimediow-android.md)
 
 ## Struktura
 
